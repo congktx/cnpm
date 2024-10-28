@@ -1,0 +1,38 @@
+.link:hover {
+    background: rgba(105, 108, 255, .16);
+    color: #696cff;
+    font-weight: 500;
+}
+
+
+.link:focus {
+    background: rgba(105, 108, 255, .16);
+    color: #696cff;
+    font-weight: 500;
+}
+
+.link {
+    color: #697a8d;
+}
+
+* {
+    color: #697a8d;
+}
+
+.color-icon {
+    color: #6568fe;
+}
+
+
+.bg-content {
+    background-color: rgba(0, 0, 0, .1);
+    box-shadow: inset 0 0.5em 1.5em rgb(0 0 0 / 10%), inset 0 0.125em 0.5em rgb(0 0 0 / 15%);
+}
+
+.input-red {
+    accent-color: red;
+}
+
+.input-green {
+    accent-color: green;
+}

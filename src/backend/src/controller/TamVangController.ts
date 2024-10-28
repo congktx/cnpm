@@ -1,0 +1,137 @@
+import { Request, Response } from "express";
+import TamVang, { ITamVang } from "../model/nhankhau/TamVang";
+import { getNextId } from "../utils/utils";
+import HoatDong from "../model/HoatDong";
+
+export class TamVangController {
+    constructor() {
+        this.addNewTamVang = this.addNewTamVang.bind(this);
+        this.deleteTamVang = this.deleteTamVang.bind(this);
+        this.getAllTamVang = this.getAllTamVang.bind(this);
+        this.getTamVangById = this.getTamVangById.bind(this);
+        this.updateTamVang = this.updateTamVang.bind(this);
+    }
+
+    public async getAllTamVang(req: Request, res: Response) {
+        try {
+            let {keyword, page, size} = req.query;
+            if (typeof keyword != "string" || typeof page != "number" || typeof size != "number") {
+                res.status(400).send("Invalid input");
+                return;
+            }
+            let result = await TamVang.find({
+                $or: [
+                    {hoVaTen: keyword},
+                    {cccd: keyword},
+                ]
+            })
+            .skip(size * (page - 1))
+            .limit(size)
+            .lean();
+            res.status(200).send({result: result});
+        } catch (err: any) {
+            console.log(err);
+            res.status(500).send(err.toString());
+        }
+    }
+
+    public async getTamVangById(req: Request, res: Response) {
+        try {
+            let {id} = req.params;
+            if (typeof id != "number") {
+                res.status(400).send("Invalid input");
+                return;
+            }
+            let result = await TamVang.findOne({id: id}).lean();
+            res.status(200).send({result: result});
+        } catch (err: any) {
+            console.log(err);
+            res.status(500).send(err.toString());
+        }
+    }
+
+    public async addNewTamVang(req: Request, res: Response) {
+        try {
+            let {hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo} = req.body;
+            if (typeof hoVaTen != "string" || typeof cccd != "string" || typeof diaChi != "string" || typeof tuNgay != "string" || typeof denNgay != "string" || typeof lyDo != "string") {
+                res.status(400).send("Invalid input");
+                return;
+            }
+            let newTamVang: ITamVang = {
+                id: await getNextId(TamVang),
+                hoVaTen: hoVaTen,
+                cccd: cccd,
+                diaChi: diaChi,
+                tuNgay: tuNgay,
+                denNgay: denNgay,
+                lyDo: lyDo,
+            };
+            await TamVang.create(newTamVang);
+            await HoatDong.create({
+                id: await getNextId(HoatDong),
+                nhanKhauId: newTamVang.id,
+                mess: "Thêm mới nhân khẩu tạm vắng: " + hoVaTen,
+            })
+            res.status(200).send({result: newTamVang});
+        } catch(err: any) {
+            console.log(err);
+            res.status(500).send(err.toString());
+        }
+    }
+
+    public async updateTamVang(req: Request, res: Response) {
+        try {
+            let {id} = req.params;
+            let {hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo} = req.body;
+            if (typeof id != "number" || typeof hoVaTen != "string" || typeof cccd != "string" || typeof diaChi != "string" || typeof tuNgay != "string" || typeof denNgay != "string" || typeof lyDo != "string") {
+                res.status(400).send("Invalid input");
+                return;
+            }
+            let tamVang = await TamVang.findOne({id: id});
+            if (!tamVang) {
+                res.status(404).send("Tam vang not found");
+                return;
+            }
+            tamVang.hoVaTen = hoVaTen;
+            tamVang.cccd = cccd;
+            tamVang.diaChi = diaChi;
+            tamVang.tuNgay = tuNgay;
+            tamVang.denNgay = denNgay;
+            tamVang.lyDo = lyDo;
+            await tamVang.save();
+            await HoatDong.create({
+                id: await getNextId(HoatDong),
+                time: new Date(Date.now()).toISOString(),
+                mess: "Cập nhật nhân khẩu tạm vắng: " + hoVaTen,
+            });
+        } catch(err: any) {
+            console.log(err);
+            res.status(500).send(err.toString());
+        }
+    }
+
+    public async deleteTamVang(req: Request, res: Response) {
+        try {
+            let {id} = req.params;
+            if (typeof id != "number") {
+                res.status(400).send("Invalid input");
+                return;
+            }
+            let tamVang = await TamVang.findOne({id: id});
+            if (!tamVang) {
+                res.status(404).send("Tam vang not found");
+                return;
+            }
+            await HoatDong.create({
+                id: await getNextId(HoatDong),
+                time: new Date(Date.now()).toISOString(),
+                mess: "Xóa nhân khẩu tạm vắng: " + tamVang.hoVaTen,
+            });
+            await TamVang.deleteOne({id: id});
+            res.status(200).send({result: null});
+        } catch(err: any) {
+            console.log(err);
+            res.status(500).send(err.toString());
+        }
+    }
+}
