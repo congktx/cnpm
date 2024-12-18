@@ -11,26 +11,21 @@ export interface IHoKhau {
 const HoKhauSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     hoTenChuHo: {
         type: String,
-        required: true
     },
     cccdChuHo: {
         type: String,
-        required: true
     },
     diaChi: {
         type: String,
-        required: true
     },
     nhanKhauIds: {
         type: [Number],
-        required: true
     }
 });
 

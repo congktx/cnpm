@@ -46,11 +46,13 @@ export class AuthenController {
     public async login(req: Request, res: Response) {
         try {
             let { username, password } = req.body;
+            console.log(username, password);
             if (typeof username !== 'string' || typeof password !== 'string') {
                 res.status(400).send('Invalid input');
                 return;
             }
             let password_encoded = await encodePassword(password);
+            console.log(password_encoded);
             let user = await User.findOne({username: username, password: password_encoded});
             if (!user) {
                 res.status(404).send('User not found');
@@ -62,11 +64,11 @@ export class AuthenController {
                 if (Number(authToken.expireIn) < Number(Date.now())) {
                     accessToken = await this.jwtTokenProvider.generateToken(user);
                     authToken.accessToken = accessToken;
-                    authToken.updatedAt = Number(Date.now());
-                    authToken.expireIn = Number(Date.now()) + JWT_EXPIRATION;
+                    authToken.updatedAt = new Date(Date.now());
+                    authToken.expireIn = new Date(Number(Date.now()) + JWT_EXPIRATION);
                     await authToken.save();
                 } else {
-                    accessToken = authToken.accessToken;
+                    accessToken = authToken?.accessToken ?? "";
                 }
             } else {
                 accessToken = await this.jwtTokenProvider.generateToken(user);
@@ -74,17 +76,18 @@ export class AuthenController {
                 let new_auth_token: IAuthToken = {
                     id: await getNextId(AuthToken),
                     accessToken: accessToken,
-                    createdAt: new Date(now_number).toISOString(),
-                    updatedAt: new Date(now_number).toISOString(),
-                    expireIn: new Date(now_number + JWT_EXPIRATION).toISOString(),
+                    createdAt: new Date(now_number),
+                    updatedAt: new Date(now_number),
+                    expireIn: new Date(now_number + JWT_EXPIRATION),
                     userId: user.id
                 };
+                console.log(new_auth_token);
                 await AuthToken.create(new_auth_token);
             }
             res.status(200).send({
                 result: {
                     username: username,
-                    accessToken: accessToken
+                    token: accessToken
                 }
             });
         } catch(err: any) {

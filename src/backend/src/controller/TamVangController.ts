@@ -15,20 +15,14 @@ export class TamVangController {
     public async getAllTamVang(req: Request, res: Response) {
         try {
             let {keyword, page, size} = req.query;
-            if (typeof keyword != "string" || typeof page != "number" || typeof size != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let result = await TamVang.find({
-                $or: [
-                    {hoVaTen: keyword},
-                    {cccd: keyword},
-                ]
-            })
-            .skip(size * (page - 1))
-            .limit(size)
-            .lean();
-            res.status(200).send({result: result});
+            keyword = String(keyword);
+            let pageNum = Number(page);
+            let sizeNum = Number(size);
+            let result = await TamVang.find({id: {$ne: 0}})
+                .skip(sizeNum * pageNum)
+                .limit(sizeNum)
+                .lean();
+            res.status(200).send({result: {content: result}});
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -38,11 +32,8 @@ export class TamVangController {
     public async getTamVangById(req: Request, res: Response) {
         try {
             let {id} = req.params;
-            if (typeof id != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let result = await TamVang.findOne({id: id}).lean();
+            let idNum = Number(id);
+            let result = await TamVang.findOne({id: idNum}).lean();
             res.status(200).send({result: result});
         } catch (err: any) {
             console.log(err);
@@ -62,8 +53,8 @@ export class TamVangController {
                 hoVaTen: hoVaTen,
                 cccd: cccd,
                 diaChi: diaChi,
-                tuNgay: tuNgay,
-                denNgay: denNgay,
+                tuNgay: new Date(tuNgay),
+                denNgay: new Date(denNgay),
                 lyDo: lyDo,
             };
             await TamVang.create(newTamVang);
@@ -95,13 +86,13 @@ export class TamVangController {
             tamVang.hoVaTen = hoVaTen;
             tamVang.cccd = cccd;
             tamVang.diaChi = diaChi;
-            tamVang.tuNgay = tuNgay;
-            tamVang.denNgay = denNgay;
+            tamVang.tuNgay = new Date(tuNgay);
+            tamVang.denNgay = new Date(denNgay);
             tamVang.lyDo = lyDo;
             await tamVang.save();
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Cập nhật nhân khẩu tạm vắng: " + hoVaTen,
             });
         } catch(err: any) {
@@ -124,7 +115,7 @@ export class TamVangController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Xóa nhân khẩu tạm vắng: " + tamVang.hoVaTen,
             });
             await TamVang.deleteOne({id: id});

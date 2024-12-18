@@ -19,13 +19,15 @@ function InfoCuocHop() {
         try {
             const {
                 result: cuocHop,
-            } = await fetchAPI(`/api/v1/cuochop/${id}`, {
-            });
+            } = await fetchAPI(`/api/v1/cuochop/${id}`, {});
             setCuocHop(cuocHop);
+            console.log(cuocHop.thoiGian)
+            console.log(moment(cuocHop.thoiGian).utc().format("YYYY-MM-DDThh:mm"))
         } catch (err) {
             console.log(err)
         }
     }, [diemDanh])
+
     useEffect(() => {
         //const { page = 1, search = "" } = context.query;
         fetchCuocHop()
@@ -58,7 +60,7 @@ function InfoCuocHop() {
                 initialValues={
                     {
                         ...cuocHop,
-                        thoiGian: moment(cuocHop.thoiGian).format("YYYY-MM-DDThh:mm"),
+                        thoiGian: moment(cuocHop.thoiGian).utc().format("YYYY-MM-DDThh:mm"),
                         hoKhaus: []
                     }
                 }
@@ -75,6 +77,7 @@ function InfoCuocHop() {
                             },
                             token: localStorage.getItem("token"),
                         });
+                        console.log(moment(values.thoiGian + "Z"))
                         alert("Sửa thành công")
                     } catch (err) {
                         alert("Sửa thất bại")
@@ -174,6 +177,7 @@ function InfoCuocHop() {
                                     },
                                     token: localStorage.getItem("token"),
                                 });
+                                await fetchCuocHop();
                                 alert("Cập nhật thành công")
                             } catch (err) {
                                 alert("Cập nhật thất bại")

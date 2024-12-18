@@ -15,20 +15,14 @@ export class TamTruController {
     public async getAllTamTru(req: Request, res: Response) {
         try {
             let {keyword, page, size} = req.query;
-            if (typeof keyword != "string" || typeof page != "number" || typeof size != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let result = await TamTru.find({
-                $or: [
-                    {hoVaTen: keyword},
-                    {cccd: keyword},
-                ]
-            })
-            .skip(size * (page - 1))
-            .limit(size)
-            .lean();
-            res.status(200).send({result: result});
+            keyword = String(keyword);
+            let pageNum = Number(page);
+            let sizeNum = Number(size);
+            let result = await TamTru.find({id: {$ne: 0}})
+                .skip(sizeNum * pageNum)
+                .limit(sizeNum)
+                .lean();
+            res.status(200).send({result: {content: result}});
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -38,11 +32,8 @@ export class TamTruController {
     public async getTamTruById(req: Request, res: Response) {
         try {
             let {id} = req.params;
-            if (typeof id != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let result = await TamTru.findOne({id: id}).lean();
+            let idNum = Number(id);
+            let result = await TamTru.findOne({id: idNum}).lean();
             res.status(200).send({result: result});
         } catch (err: any) {
             console.log(err);
@@ -62,8 +53,8 @@ export class TamTruController {
                 hoVaTen: hoVaTen,
                 cccd: cccd,
                 diaChi: diaChi,
-                tuNgay: tuNgay,
-                denNgay: denNgay,
+                tuNgay: new Date(tuNgay),
+                denNgay: new Date(denNgay),
                 lyDo: lyDo,
             };
             await TamTru.create(newTamTru);
@@ -95,13 +86,13 @@ export class TamTruController {
             tamTru.hoVaTen = hoVaTen;
             tamTru.cccd = cccd;
             tamTru.diaChi = diaChi;
-            tamTru.tuNgay = tuNgay;
-            tamTru.denNgay = denNgay;
+            tamTru.tuNgay = new Date(tuNgay);
+            tamTru.denNgay = new Date(denNgay);
             tamTru.lyDo = lyDo;
             await tamTru.save();
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Cập nhật nhân khẩu tạm trú: " + hoVaTen,
             });
         } catch(err: any) {
@@ -124,7 +115,7 @@ export class TamTruController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Xóa nhân khẩu tạm trú: " + tamTru.hoVaTen,
             });
             await TamTru.deleteOne({id: id});

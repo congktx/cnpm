@@ -16,20 +16,14 @@ export class HoKhauController {
     public async getAllHoKhau(req: Request, res: Response) {
         try {
             let {keyword, page, size} = req.query;
-            if (typeof keyword != "string" || typeof page != "number" || typeof size != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let hoKhaus = await HoKhau.find({
-                $or: [
-                    {hoTenChuHo: keyword},
-                    {cccdChuHo: keyword}
-                ]
-            })
-            .skip((page - 1) * size)
-            .limit(size)
+            keyword = String(keyword);
+            let pageNum = Number(page);
+            let sizeNum = Number(size);
+            let hoKhaus = await HoKhau.find({id: {$ne: 0}})
+            .skip(pageNum * sizeNum)
+            .limit(sizeNum)
             .lean();
-            res.status(200).send({result: hoKhaus});
+            res.status(200).send({result: {content: hoKhaus}});
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -39,12 +33,14 @@ export class HoKhauController {
     public async getHoKhauById(req: Request, res: Response) {
         try {
             let {id} = req.params;
-            if (typeof id != "number") {
-                res.status(400).send("Invalid input");
-                return;
+            let hoKhau = await HoKhau.findOne({id: Number(id)}).lean();
+            let result: any = hoKhau;
+            result.nhanKhaus = [];
+            for (let nhanKhauId of result.nhanKhauIds) {
+                let nhanKhau = await NhanKhau.findOne({id: nhanKhauId}).lean();
+                if (nhanKhau) result.nhanKhaus.push(nhanKhau);
             }
-            let hoKhau = await HoKhau.findById(id).lean();
-            res.status(200).send({result: hoKhau});
+            res.status(200).send({result: result});
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -53,12 +49,12 @@ export class HoKhauController {
 
     public async addNewHoKhau(req: Request, res: Response) {
         try {
-            let {hoTenChuHo, cccdChuHo, diaChi, nhanKhauIds} = req.body;
-            if (typeof hoTenChuHo != "string" || typeof cccdChuHo != "string" || typeof diaChi != "string" || !Array.isArray(nhanKhauIds)) {
+            let {hoTenChuHo, cccdChuHo, diaChi, nhanKhaus} = req.body;
+            if (typeof hoTenChuHo != "string" || typeof cccdChuHo != "string" || typeof diaChi != "string" || !Array.isArray(nhanKhaus)) {
                 res.status(400).send("Invalid input");
                 return;
             }
-            if (nhanKhauIds.length > 0 && typeof nhanKhauIds[0] != "number") {
+            if (nhanKhaus.length > 0 && typeof nhanKhaus[0] != "number") {
                 res.status(400).send("Invalid input");
                 return;
             }
@@ -67,10 +63,10 @@ export class HoKhauController {
                 hoTenChuHo: hoTenChuHo,
                 cccdChuHo: cccdChuHo,
                 diaChi: diaChi,
-                nhanKhauIds: nhanKhauIds
+                nhanKhauIds: nhanKhaus
             };
             await HoKhau.create(newHoKhau);
-            for (let nhanKhauId of nhanKhauIds) {
+            for (let nhanKhauId of nhanKhaus) {
                 let nhanKhau = await NhanKhau.findOne({id: nhanKhauId});
                 if (nhanKhau) {
                     nhanKhau.idhk = newHoKhau.id;
@@ -79,7 +75,7 @@ export class HoKhauController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Thêm mới hộ khẩu: " + hoTenChuHo,
             });
             res.status(200).send({result: newHoKhau});
@@ -92,20 +88,22 @@ export class HoKhauController {
     public async updateHoKhau(req: Request, res: Response) {
         try {
             let {id} = req.params;
-            let {hoTenChuHo, cccdChuHo, diaChi, nhanKhauIds} = req.body;
-            if (typeof id != "number" || typeof hoTenChuHo != "string" || typeof cccdChuHo != "string" || typeof diaChi != "string" || !Array.isArray(nhanKhauIds)) {
+            let {hoTenChuHo, cccdChuHo, diaChi, nhanKhaus} = req.body;
+            if (typeof hoTenChuHo != "string" || typeof cccdChuHo != "string" || typeof diaChi != "string" || !Array.isArray(nhanKhaus)) {
                 res.status(400).send("Invalid input");
                 return;
             }
-            if (nhanKhauIds.length > 0 && typeof nhanKhauIds[0] != "number") {
+            if (nhanKhaus.length > 0 && typeof nhanKhaus[0] != "number") {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let hoKhau = await HoKhau.findOne({id: id});
+            let idNum = Number(id);
+            let hoKhau = await HoKhau.findOne({id: idNum});
             if (!hoKhau) {
                 res.status(404).send("HoKhau not found");
                 return;
             }
+            let nhanKhauIds = nhanKhaus;
             for (let nhanKhauId of hoKhau.nhanKhauIds) {
                 let nhanKhau = await NhanKhau.findOne({id: nhanKhauId});
                 if (nhanKhau) {
@@ -116,7 +114,7 @@ export class HoKhauController {
             for (let nhanKhauId of nhanKhauIds) {
                 let nhanKhau = await NhanKhau.findOne({id: nhanKhauId});
                 if (nhanKhau) {
-                    nhanKhau.idhk = id;
+                    nhanKhau.idhk = idNum;
                     await nhanKhau.save();
                 }
             }
@@ -127,10 +125,21 @@ export class HoKhauController {
             await hoKhau.save();
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Cập nhật hộ khẩu: " + hoTenChuHo,
             });
-            res.status(200).send({result: hoKhau});
+            let result: any = {
+                id: hoKhau.id,
+                hoTenChuHo: hoKhau.hoTenChuHo,
+                cccdChuHo: hoKhau.cccdChuHo,
+                diaChi: hoKhau.diaChi,
+                nhanKhaus: []
+            };
+            for (let nhanKhauId of hoKhau.nhanKhauIds) {
+                let nhanKhau = await NhanKhau.findOne({id: nhanKhauId}).lean();
+                if (nhanKhau) result.nhanKhaus.push(nhanKhau);
+            }
+            res.status(200).send({result: result});
         } catch(err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -151,7 +160,7 @@ export class HoKhauController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Xóa hộ khẩu: " + hoKhau.hoTenChuHo,
             });
             await HoKhau.deleteOne({id: id});

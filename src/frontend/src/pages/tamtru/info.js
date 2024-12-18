@@ -53,7 +53,7 @@ function InfoTamTru() {
                 <Form class="flex-fill d-flex flex-column">
                     <div class="flex-fill flex-column d-flex">
                         <div class="d-flex justify-content-between">
-                            <div class="h4">Sửa tạm trú</div>
+                            <div class="h4">Thông tin tạm trú</div>
                             <button class="btn btn-danger" onClick={() => navigate("../")}>Quay lại</button>
                         </div>
 
@@ -79,7 +79,7 @@ function InfoTamTru() {
 
                         </div>
 
-                        <Input name="lyDo" component="textarea"> Nội dung</Input>
+                        <Input name="lyDo" component="textarea">Lý do tạm trú</Input>
                         {token != undefined && <div><button type="submit" class="btn btn-primary ">Sửa</button></div>}
                     </div>
 

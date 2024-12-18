@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-export const ValueKeyNhanKhau: any = {
+export const NhanKhauReq: any = {
     hoVaTen: "string",
-    tenKhac: "string",
+    hoVaTenKhac: "string",
     ngaySinh: "string",
     gioiTinh: "string",
     cccd: "string",
@@ -13,18 +13,17 @@ export const ValueKeyNhanKhau: any = {
     quocTich: "string",
     noiThuongTru: "string",
     diaChiHienTai: "string",
-    tringDoHocVan: "string",
+    trinhDoHocVan: "string",
     ngheNghiep: "string",
     noiLamViec: "string",
     quanHeVoiChuHo: "string",
-    isChuHo: "boolean"
 };
 
 export interface INhanKhau {
     id: number;
     hoVaTen: string;
     tenKhac: string;
-    ngaySinh: string;
+    ngaySinh: Date;
     gioiTinh: string;
     cccd: string;
     soHoChieu: string;
@@ -45,82 +44,64 @@ export interface INhanKhau {
 const NhanKhauSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     hoVaTen: {
         type: String,
-        required: true
     },
     tenKhac: {
         type: String,
-        required: true
     },
     ngaySinh: {
-        type: String,
-        required: true
+        type: Date,
     },
     gioiTinh: {
         type: String,
-        required: true
     },
     cccd: {
         type: String,
-        required: true
     },
     soHoChieu: {
         type: String,
-        required: true
     },
     nguyenQuan: {
         type: String,
-        required: true
     },
     danToc: {
         type: String,
-        required: true
     },
     tonGiao: {
         type: String,
-        required: true
     },
     quocTich: {
         type: String,
-        required: true
     },
     noiThuongTru: {
         type: String,
-        required: true
     },
     diaChiHienTai: {
         type: String,
-        required: true
     },
     tringDoHocVan: {
         type: String,
-        required: true
     },
     ngheNghiep: {
         type: String,
-        required: true
     },
     noiLamViec: {
         type: String,
-        required: true
     },
     quanHeVoiChuHo: {
         type: String,
-        required: true
     },
     isChuHo: {
         type: Boolean,
-        required: true
     },
     idhk: {
         type: Number,
-        required: true
+        default: 0,
     }
 });
 

@@ -24,3 +24,9 @@ async function testCrypto() {
 }
 
 // testCrypto();
+
+async function test() {
+    console.log(new Date(2024, 0, 2));
+}
+
+test();

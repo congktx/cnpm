@@ -72,6 +72,7 @@ export function ThongSoCuocHop({ numberMonthAgo }) {
             console.log(err)
         }
     }, [numberMonthAgo])
+
     useEffect(() => {
         const fetchData = async () => {
             const time = Date.now();
@@ -105,43 +106,57 @@ export function ThongSoCuocHop({ numberMonthAgo }) {
             setThongSoCuocHop(thongSoCuocHop);
             setHoKhauThamGias(await fetchHoKhauThamGias(year, month + 1));
             console.log(year, month)
+            console.log(hoKhauThamGias);
         }
         if (numberMonthAgo) fetchData()
 
     }, [numberMonthAgo])
+    
     return (<div class="flex-fill d-flex">
         <div class="bg-white rounded flex-fill p-2 mr-2">
             <div class="d-flex justify-content-center h5 my-4">Thông số cuộc họp {numberMonthAgo} tháng qua</div>
 
 
-            <Bar data={{
-                labels: months.map((e, i) => e + 1 + "/" + years[i]),
-                datasets: [
-                    {
-                        label: 'Tham gia',
-                        data: thongSoCuocHop.map(e => Number(e.thamGia)),
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    },
-                    {
-                        label: 'Vắng có lý do',
-                        data: thongSoCuocHop.map(e => Number(e.vangCoLyDo)),
-                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-                    },
-                    {
-                        label: 'Vắng không lý do',
-                        data: thongSoCuocHop.map(e => Number(e.vangKhongLyDo)),
-                        backgroundColor: 'rgba(247, 122, 4, 0.5)',
-                    },
-                    {
-                        label: 'Cuộc họp',
-                        data: thongSoCuocHop.map(e => Number(e.cuocHops)),
-                        backgroundColor: 'rgba(132, 237, 158, 0.5)',
-                    }
-                ],
+            <Bar 
+                data={{
+                    labels: months.map((e, i) => e + 1 + "/" + years[i]),
+                    datasets: [
+                        {
+                            label: 'Tham gia',
+                            data: thongSoCuocHop.map(e => Number(e.thamGia)),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        },
+                        {
+                            label: 'Vắng có lý do',
+                            data: thongSoCuocHop.map(e => Number(e.vangCoLyDo)),
+                            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        },
+                        {
+                            label: 'Vắng không lý do',
+                            data: thongSoCuocHop.map(e => Number(e.vangKhongLyDo)),
+                            backgroundColor: 'rgba(247, 122, 4, 0.5)',
+                        },
+                        {
+                            label: 'Cuộc họp',
+                            data: thongSoCuocHop.map(e => Number(e.cuocHops)),
+                            backgroundColor: 'rgba(132, 237, 158, 0.5)',
+                        }
+                    ],
 
-            }
+                }} 
+                options={{
+                    responsive: true,
+                    scales: {
+                      y: {
+                        ticks: {
+                          callback: (value) => Math.floor(value), // Hiển thị số nguyên
+                          stepSize: 1, // Tăng giá trị theo từng đơn vị
+                        },
+                      },
+                    },
+                }}
+            />
 
-            } />
             <div class="d-flex justify-content-center h5 my-4"> Tổng số cuộc họp: {thongSoChung.cuocHops}</div>
 
         </div>
@@ -172,10 +187,10 @@ export function ThongSoCuocHop({ numberMonthAgo }) {
                 }}></Pie>
             </div>
             <div class="flex-fill bg-white rounded p-2">
-                <div class="h5">Các người tham gia tích cực</div>
+                <div class="h5">Những người tham gia tích cực</div>
                 <hr></hr>
                 {
-                    hoKhauThamGias.filter(e => e.vangCoLyDo + e.vangKhongLyDo == 0)
+                    hoKhauThamGias.filter(e => e.vangCoLyDo + e.vangKhongLyDo === 0)
                         .sort((a, b) => a.thamGia > b.thamGia)
                         .map(e => <div>{e.hoTenChuHo}</div>)
                 }

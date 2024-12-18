@@ -34,7 +34,7 @@ function SideBar() {
                     ? <button class="btn btn-outline-secondary m-2" onClick={() => setOpenModal(true)}>Đăng nhập</button>
                     : <div>
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-user-circle mr-1"></i>
+                            <i class="fas fa-dragon"></i>
                             <div class="h5">{username}</div>
                         </div>
 

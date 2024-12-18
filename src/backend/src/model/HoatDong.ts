@@ -2,25 +2,22 @@ import mongoose from "mongoose";
 
 export interface IHoatDong {
     id: number;
-    time: string;
+    time: Date;
     mess: string;
 }
 
 const HoatDongSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     time: {
-        type: String,
-        required: true
+        type: Date,
     },
     mess: {
         type: String,
-        required: true
     }
 });
 

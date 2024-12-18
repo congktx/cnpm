@@ -3,39 +3,33 @@ import mongoose from "mongoose";
 export interface IAuthToken {
     id: number;
     accessToken: string;
-    createdAt: string;
-    updatedAt: string;
-    expireIn: string;
+    createdAt: Date;
+    updatedAt: Date;
+    expireIn: Date;
     userId: number;
 }
 
 const AuthTokenSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     accessToken: {
         type: String,
-        required: true
     },
     createdAt: {
-        type: Number,
-        required: true
+        type: Date,
     },
     updatedAt: {
-        type: Number,
-        required: true
+        type: Date,
     },
     expireIn: {
-        type: Number,
-        required: true
+        type: Date,
     },
     userId: {
         type: Number,
-        required: true
     }
 });
 

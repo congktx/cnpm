@@ -11,26 +11,21 @@ export interface IDiemDanh {
 const DiemDanhSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     hoKhauId: {
         type: Number,
-        required: true
     },
     cuocHopId: {
         type: Number,
-        required: true
     },
     diemDanh: {
         type: Boolean,
-        required: true
     },
     lyDo: {
         type: String,
-        required: true
     }
 });
 

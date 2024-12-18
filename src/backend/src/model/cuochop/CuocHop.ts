@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export interface ICuocHop {
     id: number;
     tieuDe: string;
-    thoiGian: string;
+    thoiGian: Date;
     diaDiem: string;
     noiDung: string;
     banBaoCao: string;
@@ -14,38 +14,30 @@ export interface ICuocHop {
 const CuocHopSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     tieuDe: {
         type: String,
-        required: true
     },
     thoiGian: {
-        type: String,
-        required: true
+        type: Date,
     },
     diaDiem: {
         type: String,
-        required: true
     },
     noiDung: {
         type: String,
-        required: true
     },
     banBaoCao: {
         type: String,
-        required: true
     },
     nguoiTao: {
         type: String,
-        required: true
     },
     hoKhauIds: {
         type: [Number],
-        required: true
     }
 });
 

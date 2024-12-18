@@ -31,9 +31,10 @@ function TamTru() {
             <div class="col-1 flex-fill h5">ID</div>
             <div class="col-2 flex-fill h5">Họ tên</div>
             <div class="col-1 flex-fill h5">Mã CCCD</div>
-            <div class="col-3 flex-fill h5">Địa chỉ</div>
-            <div class="col-2 flex-fill h5">Từ ngày</div>
-            <div class="col-2 flex-fill h5">Đến ngày</div>
+            <div class="col-2 flex-fill h5">Địa chỉ</div>
+            <div class="col-2 flex-fill h5">Lý do</div>
+            <div class="col-1 flex-fill h5">Từ ngày</div>
+            <div class="col-1 flex-fill h5">Đến ngày</div>
             <div class="col-1 flex-fill h5 d-flex justify-content-center">Thao tác</div>
         </div>
         {
@@ -42,9 +43,10 @@ function TamTru() {
                     <div class="col-1 flex-fill">{e.id}</div>
                     <div class="col-2 flex-fill">{e.hoVaTen}</div>
                     <div class="col-1 flex-fill">{e.cccd}</div>
-                    <div class="col-3 flex-fill">{e.diaChi}</div>
-                    <div class="col-2 flex-fill">{moment(e.tuNgay).format("DD-MM-YYYY")}</div>
-                    <div class="col-2 flex-fill">{moment(e.denNgay).format("DD-MM-YYYY")}</div>
+                    <div class="col-2 flex-fill">{e.diaChi}</div>
+                    <div class="col-2 flex-fill">{e.lyDo}</div>
+                    <div class="col-1 flex-fill">{moment(e.tuNgay).format("DD-MM-YYYY")}</div>
+                    <div class="col-1 flex-fill">{moment(e.denNgay).format("DD-MM-YYYY")}</div>
                     <div class="col-1 flex-fill d-flex justify-content-center">
                         <i class="bi bi-pencil-fill mr-1" onClick={() => navigate(`./${e.id}`)}></i>
                         {token != undefined && <i class="bi bi-file-earmark-excel-fill" onClick={() => {

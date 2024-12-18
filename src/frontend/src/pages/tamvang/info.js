@@ -51,7 +51,7 @@ function InfoTamVang() {
                 <Form class="flex-fill d-flex flex-column">
                     <div class="flex-fill flex-column d-flex">
                         <div class="d-flex justify-content-between">
-                            <div class="h4">Sửa tạm vắng </div>
+                            <div class="h4">Thông tin tạm vắng </div>
                             <button class="btn btn-danger" onClick={() => navigate("../")}>Quay lại</button>
                         </div>
 
@@ -76,7 +76,7 @@ function InfoTamVang() {
 
                         </div>
 
-                        <Input name="lyDo" component="textarea"> Nội dung</Input>
+                        <Input name="lyDo" component="textarea"> Lý do tạm vắng</Input>
 
                         {token != undefined && <div><button type="submit" class="btn btn-primary ">Sửa</button></div>}
                     </div>

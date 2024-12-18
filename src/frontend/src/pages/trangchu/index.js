@@ -24,8 +24,8 @@ function TrangChu() {
                     //params: { page: 0, size: 5, sort: "id,desc", keyword: "" },
                 });
                 setActions(actions);
-                console.log(generalInfo)
-                setGeneralInfo(generalInfo)
+                setGeneralInfo(generalInfo);
+                console.log(actions);
 
             } catch (err) {
                 console.log(err)
@@ -59,22 +59,31 @@ function TrangChu() {
             <div class="col-3 bg-white rounded-3 p-2">
                 <div class="h5">Danh sách hoạt động</div>
                 <hr></hr>
+                <div className="action-list">
                 {
-                    actions.map(e => <div class="d-flex align-items-center  my-2">
-                        <div class="mr-2 h6">{convertTimeAgo(e.time)}</div>
+                    actions.map((e, index) => (
+                    <div className="d-flex align-items-center my-2" key={index}>
+                        <div className="mr-2 h6">{formatDateTime(e.time)}</div>
                         <div>{e.mess}</div>
-                    </div>)
+                    </div>
+                    ))
                 }
+                </div>
             </div>
         </div>
     </div>);
 }
 
-function convertTimeAgo(time) {
-    TimeAgo.addLocale(vi);
-    const timeAgo = new TimeAgo("vi");
-
-    return timeAgo.format(new Date(time), "round");
+function formatDateTime(dateString) {
+    const date = new Date(dateString);
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
 export default TrangChu;

@@ -5,42 +5,35 @@ export interface ITamTru {
     hoVaTen: string;
     cccd: string;
     diaChi: string;
-    tuNgay: string;
-    denNgay: string;
+    tuNgay: Date;
+    denNgay: Date;
     lyDo: string;
 }
 
 const TamTruSchema = new mongoose.Schema({
     id: {
         type: Number,
-        required: true
     },
     next_id: {
         type: Number,
     },
     hoVaTen: {
         type: String,
-        required: true
     },
     cccd: {
         type: String,
-        required: true
     },
     diaChi: {
         type: String,
-        required: true
     },
     tuNgay: {
-        type: String,
-        required: true
+        type: Date,
     },
     denNgay: {
-        type: String,
-        required: true
+        type: Date,
     },
     lyDo: {
         type: String,
-        required: true
     }
 });
 

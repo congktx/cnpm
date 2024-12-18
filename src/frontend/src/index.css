@@ -36,3 +36,29 @@
 .input-green {
     accent-color: green;
 }
+
+.action-list {
+    max-height: 500px; /* Giới hạn chiều cao container */
+    overflow-y: auto;  /* Hiển thị thanh cuộn dọc nếu nội dung vượt quá */
+    padding-right: 8px; /* Tạo khoảng trống cho thanh cuộn */
+  }
+  
+  /* Tùy chỉnh thanh cuộn */
+.action-list::-webkit-scrollbar {
+    width: 8px; /* Độ rộng của thanh cuộn */
+}
+
+.action-list::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Màu của thanh cuộn */
+    border-radius: 4px; /* Bo góc thanh cuộn */
+}
+
+.action-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5); /* Màu khi hover */
+}
+
+.action-list::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền của rãnh thanh cuộn */
+    border-radius: 4px;
+}
+  

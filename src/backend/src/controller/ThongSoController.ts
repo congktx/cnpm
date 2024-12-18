@@ -14,11 +14,9 @@ export class ThongSoController {
     public async getHoatDong(req: Request, res: Response) {
         try {
             let {page, size} = req.query;
-            if (typeof page != "number" || typeof size != "number") {
-                res.status(400).send("Invalid input");
-                return;
-            }
-            let data = await HoatDong.find().skip(size * (page - 1)).limit(size).lean();
+            let pageNum = Number(page);
+            let sizeNum = Number(size);
+            let data = await HoatDong.find({id: {$ne: 0}}).skip(sizeNum * pageNum).limit(sizeNum).lean();
             res.status(200).send({result: {content: data}});
         } catch(err: any) {
             console.log(err);
@@ -29,10 +27,10 @@ export class ThongSoController {
     public async getThongSo(req: Request, res: Response) {
         try {
             let result: any = {
-                soHoKhau: await HoKhau.countDocuments(),
-                soNhanKhau: await NhanKhau.countDocuments(),
-                soTamTru: await TamTru.countDocuments(),
-                soTamVang: await TamVang.countDocuments(),
+                soHoKhau: Math.max(0, await HoKhau.countDocuments() - 1),
+                soNhanKhau: Math.max(0, await NhanKhau.countDocuments() - 1),
+                soTamTru: Math.max(0, await TamTru.countDocuments() - 1),
+                soTamVang: Math.max(0, await TamVang.countDocuments() - 1),
             };
             res.status(200).send({result: result});
         } catch(err: any) {

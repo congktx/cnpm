@@ -84,7 +84,7 @@ function ThemTamVang() {
 
                         </div>
 
-                        <div class="h5">Nội dung</div>
+                        <div class="h5">Lý do tạm vắng</div>
                         <Field name="lyDo" component="textarea" class="rounded-3 flex-fill mb-2"></Field>
                         <div><button type="submit" class="btn btn-primary ">Thêm</button></div>
                     </div>

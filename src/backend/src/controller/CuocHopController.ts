@@ -27,22 +27,15 @@ export class CuocHopController {
     public async getAllCuocHop(req: Request, res: Response) {
         try {
             let {keyword, page, size} = req.query;
-            if (typeof page != "number" || typeof size != "number") {
-                res.status(400).send("Page and size must be numbers");
-                return;
-            }
+            keyword = String(keyword);
+            let pageNum = Number(page);
+            let sizeNum = Number(size);
             if (!keyword) {
                 keyword = "";
             }
-            let cuocHops = await CuocHop.find({
-                $or: [
-                    {tieuDe: keyword},
-                    {diaDiem: keyword},
-                    {nguoiTao: keyword},
-                ]
-            })
-            .limit(size)
-            .skip(size * (page - 1))
+            let cuocHops = await CuocHop.find({id: {$ne: 0}})
+            .limit(sizeNum)
+            .skip(sizeNum * pageNum)
             .lean();
             let result: any = {
                 content: [],
@@ -94,7 +87,35 @@ export class CuocHopController {
                 res.status(404).send("cuoc hop not found");
                 return;
             }
-            res.status(200).send({result: cuocHop});
+            let result: any = {
+                id: cuocHop.id,
+                tieuDe: cuocHop.tieuDe,
+                thoiGian: cuocHop.thoiGian,
+                diaDiem: cuocHop.diaDiem,
+                noiDung: cuocHop.noiDung,
+                banBaoCao: cuocHop.banBaoCao,
+                nguoiTao: cuocHop.nguoiTao,
+                hoKhaus: [],
+                thamGia: 0,
+                vangMat: 0,
+            };
+            for (let index in cuocHop.hoKhauIds) {
+                let hoKhau = await HoKhau.findOne({id: cuocHop.hoKhauIds[index]});
+                if (!hoKhau) continue;
+                result.hoKhaus.push({
+                    id: hoKhau.id,
+                    hoTenChuHo: hoKhau.hoTenChuHo,
+                });
+                let diemDanh = await DiemDanh.findOne({cuocHopId: cuocHop.id, hoKhauId: cuocHop.hoKhauIds[index]});
+                if (diemDanh) {
+                    if (diemDanh.diemDanh) {
+                        result.thamGia++;
+                    } else {
+                        result.vangMat++;
+                    }
+                }
+            }
+            res.status(200).send({result: result});
         } catch(err: any) {
             res.status(500).send(err.toString());
         }
@@ -102,11 +123,13 @@ export class CuocHopController {
 
     public async addNewCuocHop(req: Request, res: Response) {
         try {
-            let {tieuDe, thoiGian, diaDiem, noiDung, banBaoCao, nguoiTao, hoKhauIds} = req.body;
-            if (typeof tieuDe != "string" || typeof thoiGian != "string" || typeof diaDiem != "string" || typeof noiDung != "string" || typeof banBaoCao != "string" || typeof nguoiTao != "string" || !Array.isArray(hoKhauIds)) {
+            let {tieuDe, thoiGian, diaDiem, noiDung, banBaoCao, nguoiTao, hoKhaus} = req.body;
+            console.log(typeof tieuDe, typeof thoiGian, typeof diaDiem, typeof noiDung, typeof banBaoCao, typeof nguoiTao, Array.isArray(hoKhaus));
+            if (typeof tieuDe != "string" || typeof thoiGian != "string" || typeof diaDiem != "string" || typeof noiDung != "string" || typeof nguoiTao != "string" || !Array.isArray(hoKhaus)) {
                 res.status(400).send("Invalid input");
                 return;
             }
+            let hoKhauIds = hoKhaus;
             if (hoKhauIds.length > 0 && typeof hoKhauIds[0] != "number") {
                 res.status(400).send("Invalid input");
                 return;
@@ -115,7 +138,7 @@ export class CuocHopController {
             let newCuocHop: ICuocHop = {
                 id: idCuocHop,
                 tieuDe: tieuDe,
-                thoiGian: thoiGian,
+                thoiGian: new Date(thoiGian),
                 diaDiem: diaDiem,
                 noiDung: noiDung,
                 banBaoCao: banBaoCao,
@@ -123,10 +146,10 @@ export class CuocHopController {
                 hoKhauIds: hoKhauIds,
             };
             await CuocHop.create(newCuocHop);
-            for (let idHoKhau of hoKhauIds) {
-                let newDiemDanh: IDiemDanh = {
+            for (let index in hoKhauIds) {
+                let newDiemDanh = {
                     id: await getNextId(DiemDanh),
-                    hoKhauId: idHoKhau,
+                    hoKhauId: hoKhauIds[index],
                     cuocHopId: idCuocHop,
                     diemDanh: true,
                     lyDo: "",
@@ -135,11 +158,29 @@ export class CuocHopController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Tạo mới cuộc họp: " + tieuDe,
             });
-            res.status(200).send("API Success");
+            let result: any = {
+                id: idCuocHop,
+                tieuDe: tieuDe,
+                diaDiem: diaDiem,
+                noiDung: noiDung,
+                banBaoCao: banBaoCao,
+                nguoiTao: nguoiTao,
+                hoKhaus: [],
+            };
+            for (let index in hoKhauIds) {
+                let hoKhau = await HoKhau.findOne({id: hoKhauIds[index]});
+                if (!hoKhau) continue;
+                result.hoKhaus.push({
+                    id: hoKhau.id,
+                    hoTenChuHo: hoKhau.hoTenChuHo,
+                });
+            }
+            res.status(200).send({result: result});
         } catch(err: any) {
+            console.log(err);
             res.status(500).send(err.toString());
         }
     }
@@ -147,26 +188,24 @@ export class CuocHopController {
     public async updateCuocHop(req: Request, res: Response) {
         try {
             let {id} = req.params;
-            let {tieuDe, thoiGian, diaDiem, noiDung, banBaoCao, nguoiTao, hoKhauIds} = req.body;
-            if (typeof id != "number") {
+            let {tieuDe, thoiGian, diaDiem, noiDung, banBaoCao, nguoiTao, hoKhaus} = req.body;
+            console.log(typeof id, typeof tieuDe, typeof thoiGian, typeof diaDiem, typeof noiDung, typeof banBaoCao, typeof nguoiTao, Array.isArray(hoKhaus));
+            if (typeof tieuDe != "string" || typeof thoiGian != "string" || typeof diaDiem != "string" || typeof noiDung != "string" || typeof banBaoCao != "string" || typeof nguoiTao != "string" || !Array.isArray(hoKhaus)) {
                 res.status(400).send("Invalid input");
                 return;
             }
-            if (typeof tieuDe != "string" || typeof thoiGian != "string" || typeof diaDiem != "string" || typeof noiDung != "string" || typeof banBaoCao != "string" || typeof nguoiTao != "string" || !Array.isArray(hoKhauIds)) {
-                res.status(400).send("Invalid input");
-                return;
-            }
+            let hoKhauIds = hoKhaus;
             if (hoKhauIds.length > 0 && typeof hoKhauIds[0] != "number") {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let cuocHop = await CuocHop.findOne({id: id});
+            let cuocHop = await CuocHop.findOne({id: Number(id)});
             if (!cuocHop) {
                 res.status(404).send("cuoc hop not found");
                 return;
             }
             cuocHop.tieuDe = tieuDe;
-            cuocHop.thoiGian = thoiGian;
+            cuocHop.thoiGian = new Date(thoiGian);
             cuocHop.diaDiem = diaDiem;
             cuocHop.noiDung = noiDung;
             cuocHop.banBaoCao = banBaoCao;
@@ -193,7 +232,7 @@ export class CuocHopController {
             };
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Chỉnh sửa cuộc họp: " + tieuDe,
             });
             res.status(200).send({result: result});
@@ -285,10 +324,11 @@ export class CuocHopController {
             }
             await HoatDong.create({
                 id: await getNextId(HoatDong),
-                time: new Date(Date.now()).toISOString(),
+                time: new Date(Date.now()),
                 mess: "Xóa cuộc họp: " + cuocHop.tieuDe,
             });
-            await DiemDanh.deleteOne({cuocHopId: id});
+            await DiemDanh.deleteMany({cuocHopId: id});
+            await CuocHop.deleteOne({id: id});
             res.status(200).send({ result: null});
         } catch(err: any) {
             res.status(500).send(err.toString());
@@ -298,8 +338,8 @@ export class CuocHopController {
     public async thongKeCuocHop(req: Request, res: Response) {
         try {
             let {months, years} = req.query;
-            let to = Number(Date.now());
-            let from = Number(new Date(Number(years), Number(months), 1));
+            let to = new Date(Date.now());
+            let from = new Date(years + "-" + months + "-01T00:00:00.00Z");
             let cuocHops = await CuocHop.find({thoiGian: {$gte: from, $lte: to}});
             let thamGia = 0, vangCoLyDo = 0, vangKhongLyDo = 0;
             for (let cuocHop of cuocHops) {
@@ -325,6 +365,7 @@ export class CuocHopController {
                 }
             });
         } catch(err: any) {
+            console.log(err);
             res.status(500).send(err.toString());
         }
     }
@@ -332,8 +373,8 @@ export class CuocHopController {
     public async thongKeNguoiThamGia(req: Request, res: Response) {
         try {
             let {months, years} = req.query;
-            let to = Number(Date.now());
-            let from = Number(new Date(Number(years), Number(months), 1));
+            let to = new Date(Date.now());
+            let from = new Date(years + "-" + months + "-01T00:00:00.00Z");
             let cuocHops = await CuocHop.find({thoiGian: {$gte: from, $lte: to}});
             let diemDanhs = await DiemDanh.find({cuocHopId: {$in: cuocHops.map((cuocHop: any) => cuocHop.id)}});
 
@@ -342,27 +383,27 @@ export class CuocHopController {
             let vangKhongPhep: any = {};    
             let listHK: any = {};
             for (let diemDanh of diemDanhs) {
-                if (!listHK[diemDanh.hoKhauId]) {
-                    listHK[diemDanh.hoKhauId] = 1;
+                if (!listHK[diemDanh.hoKhauId as any]) {
+                    listHK[diemDanh.hoKhauId as any] = 1;
                 }
                 if (diemDanh.diemDanh) {
-                    if (!thamGia[diemDanh.hoKhauId]) {
-                        thamGia[diemDanh.hoKhauId] = 1;
+                    if (!thamGia[diemDanh.hoKhauId as any]) {
+                        thamGia[diemDanh.hoKhauId as any] = 1;
                     } else {
-                        thamGia[diemDanh.hoKhauId]++;
+                        thamGia[diemDanh.hoKhauId as any]++;
                     }
                 } else {
                     if (diemDanh.lyDo) {
-                        if (!vangCoPhep[diemDanh.hoKhauId]) {
-                            vangCoPhep[diemDanh.hoKhauId] = 1;
+                        if (!vangCoPhep[diemDanh.hoKhauId as any]) {
+                            vangCoPhep[diemDanh.hoKhauId as any] = 1;
                         } else {
-                            vangCoPhep[diemDanh.hoKhauId]++;
+                            vangCoPhep[diemDanh.hoKhauId as any]++;
                         }
                     } else {
-                        if (!vangKhongPhep[diemDanh.hoKhauId]) {
-                            vangKhongPhep[diemDanh.hoKhauId] = 1;
+                        if (!vangKhongPhep[diemDanh.hoKhauId as any]) {
+                            vangKhongPhep[diemDanh.hoKhauId as any] = 1;
                         } else {
-                            vangKhongPhep[diemDanh.hoKhauId]++;
+                            vangKhongPhep[diemDanh.hoKhauId as any]++;
                         }
                     }
                 }
@@ -377,8 +418,8 @@ export class CuocHopController {
                     hoTenChuHo: hoKhau.hoTenChuHo,  
                     diaChi: hoKhau.diaChi,
                     thamGia: thamGia[hoKhauId] || 0,
-                    vangCoPhep: vangCoPhep[hoKhauId] || 0,
-                    vangKhongPhep: vangKhongPhep[hoKhauId] || 0,
+                    vangCoLyDo: vangCoPhep[hoKhauId] || 0,
+                    vangKhongLyDo: vangKhongPhep[hoKhauId] || 0,
                 });
             }
 
@@ -454,7 +495,6 @@ export class CuocHopController {
                 diemDanhObj.lyDo = lyDo;
                 await diemDanhObj.save();
                 res.status(200).send({
-                    
                     result: {
                         hoKhau: hoKhau,
                         cuocHop: cuocHop,
@@ -463,6 +503,7 @@ export class CuocHopController {
                         hoTenChuHo: hoKhauObj.hoTenChuHo,
                     }
                 });
+                return;
             }
             let newDiemDanh: IDiemDanh = {
                 id: await getNextId(DiemDanh),
@@ -482,6 +523,7 @@ export class CuocHopController {
                 }
             });
         } catch(err: any) {
+            console.log(err);
             res.status(500).send(err.toString());
         }
     }
@@ -495,8 +537,19 @@ export class CuocHopController {
                 return;
             }
             let diemDanhs = await DiemDanh.find({cuocHopId: id});
+            let result: any[] = [];
+            for (let diemDanh of diemDanhs) {
+                let hoKhau = await HoKhau.findOne({id: diemDanh.hoKhauId});
+                result.push({
+                    hoKhau: diemDanh.hoKhauId,
+                    cuocHop: diemDanh.cuocHopId,
+                    diemDanh: diemDanh.diemDanh,
+                    lyDo: diemDanh.lyDo,
+                    hoTenChuHo: hoKhau?.hoTenChuHo ?? "",
+                });
+            }
             res.status(200).send({
-                result: diemDanhs,
+                result: result,
             });
         } catch(err: any) {
             res.status(500).send(err.toString());
@@ -512,7 +565,7 @@ export class CuocHopController {
                 return;
             }
             let invited = await HoKhau.find({id: {$in: cuocHop.hoKhauIds}});
-            let notInvited = await HoKhau.find({id: {$nin: cuocHop.hoKhauIds}});
+            let notInvited = await HoKhau.find({id: {$nin: cuocHop.hoKhauIds, $ne: 0}});
             let result: any[] = [];
             for (let hoKhau of invited) {
                 result.push({
@@ -540,7 +593,7 @@ export class CuocHopController {
         try {
             let {id} = req.params;
             let {hoKhaus} = req.body;
-            if (typeof id != "number" || !Array.isArray(hoKhaus)) {
+            if (!Array.isArray(hoKhaus)) {
                 res.status(400).send("Invalid input");
                 return;
             }
@@ -548,17 +601,55 @@ export class CuocHopController {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let cuocHop = await CuocHop.findOne({id: id});
+            let idNum = Number(id);
+            let cuocHop = await CuocHop.findOne({id: idNum});
             if (!cuocHop) {
                 res.status(404).send("cuoc hop not found");
                 return;
             }
+            let oldHoKhauIds = cuocHop.hoKhauIds;
             cuocHop.hoKhauIds = hoKhaus;
             await cuocHop.save();
+            for (let oldHoKhauId of oldHoKhauIds) {
+                if (!hoKhaus.includes(oldHoKhauId)) {
+                    await DiemDanh.deleteOne({cuocHopId: idNum, hoKhauId: oldHoKhauId});
+                }
+            }
+            for (let hoKhauId of hoKhaus) {
+                if (!oldHoKhauIds.includes(hoKhauId)) {
+                    let newDiemDanh: IDiemDanh = {
+                        id: await getNextId(DiemDanh),
+                        hoKhauId: hoKhauId,
+                        cuocHopId: idNum,
+                        diemDanh: true,
+                        lyDo: "",
+                    };
+                    await DiemDanh.create(newDiemDanh);
+                }
+            }
+            let result: any = {
+                id: idNum,
+                tieuDe: cuocHop.tieuDe,
+                thoiGian: cuocHop.thoiGian,
+                diaDiem: cuocHop.diaDiem,
+                noiDung: cuocHop.noiDung,
+                banBaoCao: cuocHop.banBaoCao,
+                nguoiTao: cuocHop.nguoiTao,
+                hoKhaus: [],
+            };
+            for (let index in hoKhaus) {
+                let hoKhau = await HoKhau.findOne({id: hoKhaus[index]});
+                if (!hoKhau) continue;
+                result.hoKhaus.push({
+                    id: hoKhau.id,
+                    hoTenChuHo: hoKhau.hoTenChuHo,
+                });
+            }
             res.status(200).send({
-                result: cuocHop,
+                result: result,
             });
         } catch(err: any) {
+            console.log(err);
             res.status(500).send(err.toString());
         }
     }
