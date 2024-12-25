@@ -13,12 +13,16 @@ export class ThongSoController {
 
     public async getHoatDong(req: Request, res: Response) {
         try {
-            let {page, size} = req.query;
+            let { page, size } = req.query;
             let pageNum = Number(page);
             let sizeNum = Number(size);
-            let data = await HoatDong.find({id: {$ne: 0}}).skip(sizeNum * pageNum).limit(sizeNum).lean();
-            res.status(200).send({result: {content: data}});
-        } catch(err: any) {
+            if (isNaN(pageNum) || isNaN(sizeNum)) {
+                res.status(400).send("Page & size must be number");
+                return;
+            }
+            let data = await HoatDong.find({ id: { $ne: 0 } }).skip(sizeNum * pageNum).limit(sizeNum).lean();
+            res.status(200).send({ result: { content: data } });
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }
@@ -32,8 +36,8 @@ export class ThongSoController {
                 soTamTru: Math.max(0, await TamTru.countDocuments() - 1),
                 soTamVang: Math.max(0, await TamVang.countDocuments() - 1),
             };
-            res.status(200).send({result: result});
-        } catch(err: any) {
+            res.status(200).send({ result: result });
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }

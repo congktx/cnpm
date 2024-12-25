@@ -14,15 +14,19 @@ export class TamVangController {
 
     public async getAllTamVang(req: Request, res: Response) {
         try {
-            let {keyword, page, size} = req.query;
+            let { keyword, page, size } = req.query;
             keyword = String(keyword);
             let pageNum = Number(page);
             let sizeNum = Number(size);
-            let result = await TamVang.find({id: {$ne: 0}})
+            if (isNaN(pageNum) || isNaN(sizeNum)) {
+                res.status(400).send("Page & size must be number");
+                return;
+            }
+            let result = await TamVang.find({ id: { $ne: 0 } })
                 .skip(sizeNum * pageNum)
                 .limit(sizeNum)
                 .lean();
-            res.status(200).send({result: {content: result}});
+            res.status(200).send({ result: { content: result } });
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -31,10 +35,14 @@ export class TamVangController {
 
     public async getTamVangById(req: Request, res: Response) {
         try {
-            let {id} = req.params;
+            let { id } = req.params;
             let idNum = Number(id);
-            let result = await TamVang.findOne({id: idNum}).lean();
-            res.status(200).send({result: result});
+            if (isNaN(idNum)) {
+                res.status(400).send("Invalid ID");
+                return;
+            }
+            let result = await TamVang.findOne({ id: idNum }).lean();
+            res.status(200).send({ result: result });
         } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
@@ -43,7 +51,7 @@ export class TamVangController {
 
     public async addNewTamVang(req: Request, res: Response) {
         try {
-            let {hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo} = req.body;
+            let { hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo } = req.body;
             if (typeof hoVaTen != "string" || typeof cccd != "string" || typeof diaChi != "string" || typeof tuNgay != "string" || typeof denNgay != "string" || typeof lyDo != "string") {
                 res.status(400).send("Invalid input");
                 return;
@@ -63,8 +71,8 @@ export class TamVangController {
                 nhanKhauId: newTamVang.id,
                 mess: "Thêm mới nhân khẩu tạm vắng: " + hoVaTen,
             })
-            res.status(200).send({result: newTamVang});
-        } catch(err: any) {
+            res.status(200).send({ result: newTamVang });
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }
@@ -72,13 +80,14 @@ export class TamVangController {
 
     public async updateTamVang(req: Request, res: Response) {
         try {
-            let {id} = req.params;
-            let {hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo} = req.body;
-            if (typeof id != "number" || typeof hoVaTen != "string" || typeof cccd != "string" || typeof diaChi != "string" || typeof tuNgay != "string" || typeof denNgay != "string" || typeof lyDo != "string") {
+            let { id } = req.params;
+            const idNum = Number(id);
+            let { hoVaTen, cccd, diaChi, tuNgay, denNgay, lyDo } = req.body;
+            if (isNaN(idNum) || typeof hoVaTen != "string" || typeof cccd != "string" || typeof diaChi != "string" || typeof tuNgay != "string" || typeof denNgay != "string" || typeof lyDo != "string") {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let tamVang = await TamVang.findOne({id: id});
+            let tamVang = await TamVang.findOne({ id: idNum });
             if (!tamVang) {
                 res.status(404).send("Tam vang not found");
                 return;
@@ -95,7 +104,7 @@ export class TamVangController {
                 time: new Date(Date.now()),
                 mess: "Cập nhật nhân khẩu tạm vắng: " + hoVaTen,
             });
-        } catch(err: any) {
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }
@@ -103,12 +112,13 @@ export class TamVangController {
 
     public async deleteTamVang(req: Request, res: Response) {
         try {
-            let {id} = req.params;
-            if (typeof id != "number") {
+            let { id } = req.params;
+            const idNum = Number(id);
+            if (isNaN(idNum)) {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let tamVang = await TamVang.findOne({id: id});
+            let tamVang = await TamVang.findOne({ id: idNum });
             if (!tamVang) {
                 res.status(404).send("Tam vang not found");
                 return;
@@ -118,9 +128,9 @@ export class TamVangController {
                 time: new Date(Date.now()),
                 mess: "Xóa nhân khẩu tạm vắng: " + tamVang.hoVaTen,
             });
-            await TamVang.deleteOne({id: id});
-            res.status(200).send({result: null});
-        } catch(err: any) {
+            await TamVang.deleteOne({ id: idNum });
+            res.status(200).send({ result: null });
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }

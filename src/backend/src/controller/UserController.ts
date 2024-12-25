@@ -11,10 +11,10 @@ export class UserController {
         try {
             let users = await User.find();
             res.status(200).send({
-                
+
                 result: users
             });
-        } catch(err: any) {
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }
@@ -22,21 +22,22 @@ export class UserController {
 
     public async getUserById(req: Request, res: Response) {
         try {
-            let {id} = req.params;
-            if (typeof id != "number") {
+            let { id } = req.params;
+            const idNum = Number(id);
+            if (isNaN(idNum)) {
                 res.status(400).send("Invalid input");
                 return;
             }
-            let user = await User.findOne({id: id});
+            let user = await User.findOne({ id: idNum });
             if (!user) {
                 res.status(404).send("User not found");
                 return;
             }
             res.status(200).send({
-                
+
                 result: user
             });
-        } catch(err: any) {
+        } catch (err: any) {
             console.log(err);
             res.status(500).send(err.toString());
         }
