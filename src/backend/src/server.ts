@@ -14,10 +14,14 @@ import { HoKhauRouter } from "./router/HoKhauRouter";
 import { TamTruRouter } from "./router/TamTruRouter";
 import { TamVangRouter } from "./router/TamVangRouter";
 import { ThongSoRouter } from "./router/ThongSoRouter";
+import { readFileSync } from "fs";
+import * as swaggerUi from "swagger-ui-express";
+
 dotenv.config();
 
 const limitMs = Number(process.env.LIMIT_MS ?? 60 * 1000);
 const limitRequest = Number(process.env.LIMIT_REQUEST ?? 100);
+const swaggerDocument = JSON.parse(readFileSync("swagger/swagger.json", "utf-8"));
 
 const limiter = rateLimit({
     windowMs: limitMs,
@@ -33,6 +37,7 @@ class Server {
         this.config();
         this.mongo();
         this.routes();
+        this.configSwagger();
     }
 
     public routes(): void {
@@ -44,7 +49,7 @@ class Server {
         this.app.use("/api/v1/tamtru", new TamTruRouter().router);
         this.app.use("/api/v1/tamvang", new TamVangRouter().router);
         this.app.use("/api/v1/cuochop", new CuocHopRouter().router);
-        this.app.use("/api/v1", new ThongSoRouter().router);    
+        this.app.use("/api/v1", new ThongSoRouter().router);
     }
 
     public config(): void {
@@ -61,6 +66,10 @@ class Server {
                 console.log(text);
             },
         };
+    }
+
+    private configSwagger(): void {
+        this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     }
 
     private mongo(): void {
