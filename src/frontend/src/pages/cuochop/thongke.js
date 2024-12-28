@@ -5,11 +5,18 @@ import { ThongSoCuocHop } from "../../components/thongSoCuocHop";
 function ThongKeCuocHop() {
     const navigate = useNavigate();
     const [numberMonthAgo, setNumberMonthAgo] = useState(0);
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            setNumberMonthAgo(document.getElementById("month_input").value)
+        }
+    }
+
     return (<div class="d-flex flex-fill flex-column">
         <div class="d-flex mb-2">
             <div class="input-group mr-2">
 
-                <input type="number" class="border-0 rounded-left" id="month_input" />
+                <input type="number" min="0" class="border-0 rounded-left" id="month_input" onKeyDown={handleKeyDown} />
                 <div class="input-group-prepend mr-2">
                     <span class="input-group-text" id="basic-addon1">month ago</span>
                 </div>

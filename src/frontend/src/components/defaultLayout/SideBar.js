@@ -7,6 +7,32 @@ import { useAuthContext } from "../../contexts/authContext";
 function SideBar() {
     const [openModal, setOpenModal] = useState(false)
     const { token, username, setToken, setUserName } = useAuthContext();
+
+    const handleKeyDown = async (event) => {
+        if (event.key === "Enter") {
+            try {
+
+                const {
+                    result: { token: token, username: name },
+
+                } = await fetchAPI("/api/v1/auth/login", {
+                    method: "POST",
+                    body: {
+                        username: document.getElementById("username").value,
+                        password: document.getElementById("password").value
+                    }
+                });
+
+                localStorage.setItem("token", token);
+                localStorage.setItem("name", name)
+                setToken(token)
+                setUserName(name);
+                setOpenModal(false)
+            } catch (err) {
+            }
+        }
+    }
+
     return (<nav class="d-flex flex-column flex-shrink-0 p-3 min-vh-100">
         <div class="d-flex align-items-center">
             <i class="fa fa-address-card-o fa-2x mr-1 color-icon" ></i>
@@ -30,7 +56,7 @@ function SideBar() {
         </ul>
         <div class="dropdown border-top">
             <div class="justify-content-end bg-white rounded-2">
-                {token == undefined
+                {token === undefined
                     ? <button class="btn btn-outline-secondary m-2" onClick={() => setOpenModal(true)}>Đăng nhập</button>
                     : <div>
                         <div class="d-flex align-items-center">
@@ -61,13 +87,13 @@ function SideBar() {
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Username</span>
                         </div>
-                        <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" id="username" />
+                        <input type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" id="username" onKeyDown={handleKeyDown} />
                     </div>
                     <div class="input-group my-2">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Password</span>
                         </div>
-                        <input type="password" class="form-control" aria-label="Username" aria-describedby="basic-addon1" id="password" />
+                        <input type="password" class="form-control" aria-label="Username" aria-describedby="basic-addon1" id="password" onKeyDown={handleKeyDown} />
                     </div>
                     <div class="d-flex justify-content-center my-2">
                         <button class="btn btn-primary" onClick={async () => {
