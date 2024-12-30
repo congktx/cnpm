@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import publicRoutes from "../../routes";
 import { Modal } from "react-bootstrap";
 import { useState } from "react";
@@ -13,7 +13,7 @@ function SideBar() {
             try {
 
                 const {
-                    result: { token: token, username: name },
+                    result
 
                 } = await fetchAPI("/api/v1/auth/login", {
                     method: "POST",
@@ -23,10 +23,10 @@ function SideBar() {
                     }
                 });
 
-                localStorage.setItem("token", token);
-                localStorage.setItem("name", name)
-                setToken(token)
-                setUserName(name);
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("name", result.username)
+                setToken(result.token)
+                setUserName(result.username);
                 setOpenModal(false)
             } catch (err) {
             }
@@ -35,7 +35,7 @@ function SideBar() {
 
     return (<nav class="d-flex flex-column flex-shrink-0 p-3 min-vh-100">
         <div class="d-flex align-items-center">
-            <i class="fa fa-address-card-o fa-2x mr-1 color-icon" ></i>
+            <i class="fa fa-id-card-o fa-2x mr-1 color-icon" ></i>
             <span class="fs-4 fw-bolder color-2">Manager</span>
         </div>
         <hr></hr>
@@ -60,8 +60,8 @@ function SideBar() {
                     ? <button class="btn btn-outline-secondary m-2" onClick={() => setOpenModal(true)}>Đăng nhập</button>
                     : <div>
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-dragon"></i>
-                            <div class="h5">{username}</div>
+                            <i class="fa fa-user-circle fa-2x mr-2 mt-2"></i>
+                            <div class="h5 mt-2">{username}</div>
                         </div>
 
                         <button class="btn btn-outline-secondary m-2" onClick={() => {
@@ -75,7 +75,8 @@ function SideBar() {
 
             </div>
         </div>
-        <Modal show={openModal}
+        <Modal
+            show={openModal}
             onHide={() => setOpenModal(false)}
         >
             <Modal.Header closeButton>
@@ -100,7 +101,7 @@ function SideBar() {
                             try {
 
                                 const {
-                                    result: { token: token, username: name },
+                                    result
 
                                 } = await fetchAPI("/api/v1/auth/login", {
                                     method: "POST",
@@ -110,10 +111,10 @@ function SideBar() {
                                     }
                                 });
 
-                                localStorage.setItem("token", token);
-                                localStorage.setItem("name", name)
-                                setToken(token)
-                                setUserName(name);
+                                localStorage.setItem("token", result.token);
+                                localStorage.setItem("name", result.username)
+                                setToken(result.token)
+                                setUserName(result.name);
                                 setOpenModal(false)
                             } catch (err) {
                                 alert("Đăng nhập thất bại");

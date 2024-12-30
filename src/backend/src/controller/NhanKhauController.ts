@@ -22,8 +22,17 @@ export class NhanKhauController {
                 res.status(400).send("Invalid input");
                 return;
             }
-
-            let nhanKhaus = await NhanKhau.find({ id: { $ne: 0 } })
+            if (!keyword) {
+                keyword = "";
+            }
+            let nhanKhaus = await NhanKhau.find({
+                id: { $ne: 0 },
+                $or: [
+                    { hoVaTen: { $regex: keyword, $options: 'i' } },
+                    { cccd: { $regex: keyword, $options: 'i' } },
+                    { diaChiHienNay: { $regex: keyword, $options: 'i' } },
+                ]
+            })
                 .limit(sizeNum)
                 .skip(sizeNum * pageNum)
                 .lean();

@@ -3,48 +3,131 @@
 
 <head>
     <meta charset="utf-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Web site created using create-react-app" />
 
-    <!-- <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script> -->
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <!--
-        manifest.json provides metadata used when your web app is installed on a
-        user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-        -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-        Notice the use of %PUBLIC_URL% in the tags above.
-        It will be replaced with the URL of the `public` folder during the build.
-        Only files inside the `public` folder can be referenced from the HTML.
-
-        Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-        work correctly both with client-side routing and a non-root public URL.
-        Learn how to configure a non-root public URL by running `npm run build`.
-        -->
     <title>Quản lý dân cư</title>
+
+    <style>
+        @keyframes moveReindeer {
+            0% { left: -50%; }
+            100% { left: 120%; }
+        }
+
+        .reindeer {
+            position: absolute;
+            bottom: -60px;
+            max-width: 300px;
+            max-height: 300px;
+            animation: moveReindeer 10s linear infinite;
+            z-index: 1;
+        }
+
+        body {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
 </head>
 
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-        This HTML file is a template.
-        If you open it directly in the browser, you will see an empty page.
+    <div class="reindeer-container">
+        <img src="noel.png" alt="Reindeer" class="reindeer" id="reindeer">
+    </div>
+    <button 
+        id="toggleSnowflakes" 
+        class="btn btn-primary" 
+        style="position: absolute; top: 500px; left: 10px; background-color: #5EA4DA;"
+    >
+        Snowflakes: On
+    </button>
+    <button 
+        id="toggleReindeer" 
+        class="btn btn-secondary" 
+        style="position: absolute; top: 550px; left: 10px; background-color: #5EA4DA;"
+    >
+        Reindeer: On
+    </button>
+    <script>
+        let snowflakeInterval;
+        let snowflakesEnabled = true;
+        let reindeerEnabled = true;
 
-        You can add webfonts, meta tags, or analytics to this file.
-        The build step will place the bundled scripts into the <body> tag.
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = '&#10052;'; // Unicode for snowflake
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(snowflake);
 
-        To begin the development, run `npm start` or `yarn start`.
-        To create a production bundle, use `npm run build` or `yarn build`.
-        -->
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
+        }
+
+        function toggleSnowflakes() {
+            const button_snowflakes = document.getElementById('toggleSnowflakes'); 
+            if (snowflakesEnabled) {
+                clearInterval(snowflakeInterval);
+                button_snowflakes.textContent = 'Snowflakes: Off';
+                button_snowflakes.style.backgroundColor = '#CA3D4B';
+            } else {
+                snowflakeInterval = setInterval(createSnowflake, 100);
+                button_snowflakes.textContent = 'Snowflakes: On';
+                button_snowflakes.style.backgroundColor = '#5EA4DA';
+            }
+            snowflakesEnabled = !snowflakesEnabled;
+        }
+
+        function toggleReindeer() {
+            const reindeer = document.getElementById('reindeer');
+            const button_reindeer = document.getElementById('toggleReindeer');
+            if (reindeerEnabled) {
+                reindeer.style.animationPlayState = 'paused';
+                reindeer.style.opacity = 0;
+                button_reindeer.textContent = 'Reindeer: Off';
+                button_reindeer.style.backgroundColor = '#CA3D4B';
+            } else {
+                reindeer.style.animationPlayState = 'running';
+                reindeer.style.opacity = 1;
+                button_reindeer.textContent = 'Reindeer: On';
+                button_reindeer.style.backgroundColor = '#5EA4DA';
+            }
+            reindeerEnabled = !reindeerEnabled;
+        }
+
+        document.getElementById('toggleSnowflakes').addEventListener('click', toggleSnowflakes);
+        document.getElementById('toggleReindeer').addEventListener('click', toggleReindeer);
+
+        snowflakeInterval = setInterval(createSnowflake, 100);
+    </script>
 </body>
 
 </html>

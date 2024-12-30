@@ -1,9 +1,9 @@
-import { useParams } from "react-router";
+// import { useParams } from "react-router";
 import { fetchAPI } from "../../untils/fetchAPI";
 import { useAuthContext } from "../../contexts/authContext";
 export function DiemDanh({ diemDanh, setDiemDanh }) {
     const { token } = useAuthContext();
-    const { id } = useParams()
+    // const { id } = useParams()
     return (
         <div>
             <div class="row">
@@ -20,29 +20,29 @@ export function DiemDanh({ diemDanh, setDiemDanh }) {
                         <input type="radio" name={`diemDanh${e.hoKhau}`} class="input-green" checked={e.diemDanh}
                             onChange={() => {
                                 setDiemDanh(diemDanh.map(value => {
-                                    if (value.hoKhau == e.hoKhau) value.diemDanh = true;
+                                    if (value.hoKhau === e.hoKhau) value.diemDanh = true;
                                     return value;
                                 }))
-                            }} disabled={token == undefined}></input>
+                            }} disabled={token === undefined}></input>
                     </div>
                     <div class="col-1 flex-fill d-flex justify-content-center">
                         <input type="radio" name={`diemDanh${e.hoKhau}`} class="input-red" checked={!e.diemDanh}
                             onChange={() => {
                                 setDiemDanh(diemDanh.map(value => {
-                                    if (value.hoKhau == e.hoKhau) value.diemDanh = false;
+                                    if (value.hoKhau === e.hoKhau) value.diemDanh = false;
                                     return value;
                                 }))
-                            }} disabled={token == undefined}></input>
+                            }} disabled={token === undefined}></input>
                     </div>
                     <div class="col-3 flex-fill">
                         {
                             !e.diemDanh &&
                             <input class="rounded" onChange={(event) => {
                                 setDiemDanh(diemDanh.map(value => {
-                                    if (value.hoKhau == e.hoKhau) value.lyDo = event.target.value;
+                                    if (value.hoKhau === e.hoKhau) value.lyDo = event.target.value;
                                     return value;
                                 }))
-                            }} value={e.lyDo} disabled={token == undefined}></input>
+                            }} value={e.lyDo} disabled={token === undefined}></input>
                         }
                     </div>
                     <div class="col-1">

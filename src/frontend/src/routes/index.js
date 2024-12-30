@@ -16,7 +16,7 @@ import InfoTamVang from "../pages/tamvang/info";
 import ThongKeCuocHop from "../pages/cuochop/thongke";
 
 const publicRoutes = [
-    { path: "", element: <TrangChu />, name: "Trang chủ", icon: "fa fa-home" },
+    { path: "", element: <TrangChu />, name: "Trang chủ", icon: "fa fa-bar-chart" },
     {
         path: "hokhau", name: "Hộ khẩu",
         children: [
@@ -32,7 +32,7 @@ const publicRoutes = [
             { path: "", element: <NhanKhau />, name: "Danh sách nhân khẩu" },
             { path: ":id", element: <InfoNhanKhau />, name: "Chi tiết nhân khẩu" }
         ],
-        icon: "fa fa-home"
+        icon: "fa fa-users"
     },
     {
         path: "tamtru", name: "Tạm trú",
@@ -41,7 +41,7 @@ const publicRoutes = [
             { path: "them", element: <ThemTamTru />, name: "Thêm tạm trú" },
             { path: ":id", element: <InfoTamTru />, name: "Chi tiết cuoc hop" }
         ],
-        icon: "fa fa-home"
+        icon: "fa fa-user-plus"
     },
     {
         path: "tamvang", name: "Tạm vắng",
@@ -50,7 +50,7 @@ const publicRoutes = [
             { path: "them", element: <ThemTamVang />, name: "Thêm tạm vắng" },
             { path: ":id", element: <InfoTamVang />, name: "Chi tiết cuoc hop" }
         ],
-        icon: "fa fa-home"
+        icon: "fa fa-user-times"
     },
     {
         path: "cuochop", name: "Cuộc họp",
@@ -60,7 +60,7 @@ const publicRoutes = [
             { path: "thongke", element: <ThongKeCuocHop />, name: "Thong ke cuoc hop" },
             { path: ":id", element: <InfoCuocHop />, name: "Chi tiết cuoc hop" }
         ],
-        icon: "fa fa-home"
+        icon: "fa fa-weixin"
     }
 ]
 

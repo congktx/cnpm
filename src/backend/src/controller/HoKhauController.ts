@@ -23,7 +23,17 @@ export class HoKhauController {
                 res.status(400).send("Page & size must be number");
                 return;
             }
-            let hoKhaus = await HoKhau.find({ id: { $ne: 0 } })
+            if (!keyword) {
+                keyword = "";
+            }
+            let hoKhaus = await HoKhau.find({
+                id: { $ne: 0 },
+                $or: [
+                    { hoTenChuHo: { $regex: keyword, $options: 'i' } },
+                    { cccdChuHo: { $regex: keyword, $options: 'i' } },
+                    { diaChi: { $regex: keyword, $options: 'i' } },
+                ]
+            })
                 .skip(pageNum * sizeNum)
                 .limit(sizeNum)
                 .lean();

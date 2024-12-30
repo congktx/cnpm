@@ -22,7 +22,17 @@ export class TamTruController {
                 res.status(400).send("Page & size must be number!");
                 return;
             }
-            let result = await TamTru.find({ id: { $ne: 0 } })
+            if (!keyword) {
+                keyword = "";
+            }
+            let result = await TamTru.find({
+                id: { $ne: 0 },
+                $or: [
+                    { hoVaTen: { $regex: keyword, $options: 'i' } },
+                    { cccd: { $regex: keyword, $options: 'i' } },
+                    { diaChi: { $regex: keyword, $options: 'i' } },
+                ]
+            })
                 .skip(sizeNum * pageNum)
                 .limit(sizeNum)
                 .lean();

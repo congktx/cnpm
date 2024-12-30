@@ -37,7 +37,14 @@ export class CuocHopController {
             if (!keyword) {
                 keyword = "";
             }
-            let cuocHops = await CuocHop.find({ id: { $ne: 0 } })
+            let cuocHops = await CuocHop.find({
+                id: { $ne: 0 },
+                $or: [
+                    { tieuDe: { $regex: keyword, $options: 'i' } },
+                    { diaDiem: { $regex: keyword, $options: 'i' } },
+                    { noiDung: { $regex: keyword, $options: 'i' } },
+                ]
+            })
                 .limit(sizeNum)
                 .skip(sizeNum * pageNum)
                 .lean();
