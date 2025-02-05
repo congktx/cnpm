@@ -5,8 +5,8 @@ import { useState } from "react";
 import { fetchAPI } from "../../untils/fetchAPI";
 import { useAuthContext } from "../../contexts/authContext";
 function SideBar() {
-    const [openModal, setOpenModal] = useState(false)
-    const { token, username, setToken, setUserName } = useAuthContext();
+    const [openModal, setOpenModal] = useState(false);
+    const { token, setToken, username, setUserName } = useAuthContext();
 
     const handleKeyDown = async (event) => {
         if (event.key === "Enter") {
@@ -14,7 +14,6 @@ function SideBar() {
 
                 const {
                     result
-
                 } = await fetchAPI("/api/v1/auth/login", {
                     method: "POST",
                     body: {
@@ -56,9 +55,8 @@ function SideBar() {
         </ul>
         <div class="dropdown border-top">
             <div class="justify-content-end bg-white rounded-2">
-                {token === undefined
-                    ? <button class="btn btn-outline-secondary m-2" onClick={() => setOpenModal(true)}>Đăng nhập</button>
-                    : <div>
+                {(typeof token === "string" && token.length > 0)
+                    ? <div>
                         <div class="d-flex align-items-center">
                             <i class="fa fa-user-circle fa-2x mr-2 mt-2"></i>
                             <div class="h5 mt-2">{username}</div>
@@ -71,6 +69,7 @@ function SideBar() {
                             setToken(undefined);
                         }}>Đăng xuất</button>
                     </div>
+                    : <button class="btn btn-outline-secondary m-2" onClick={() => setOpenModal(true)}>Đăng nhập</button>
                 }
 
             </div>

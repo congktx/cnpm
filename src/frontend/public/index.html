@@ -31,7 +31,7 @@
         }
 
         body {
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
         }
 
@@ -43,6 +43,11 @@
             opacity: 0.8;
             pointer-events: none;
             animation: fall linear infinite;
+        }
+
+        button {
+            z-index: 2;
+            position: relative;
         }
 
         @keyframes fall {

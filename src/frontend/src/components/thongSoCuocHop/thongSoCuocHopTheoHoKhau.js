@@ -62,7 +62,7 @@ export function ThongSoCuocHopTheoHoKhau() {
                         datasets: [
                             {
                                 label: 'so luong',
-                                data: [thongSoCuocHop.thamGia, thongSoCuocHop.vangCoLyDo, thongSoCuocHop.vangKhongLyDo],
+                                data: [thongSoCuocHop.cuocHopThamGia.length, thongSoCuocHop.cuocHopVangCoLyDo.length, thongSoCuocHop.cuocHopVangKhongLyDo.length],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.2)',
                                     'rgba(54, 162, 235, 0.2)',

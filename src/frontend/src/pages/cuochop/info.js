@@ -21,7 +21,7 @@ function InfoCuocHop() {
                 result: cuocHop,
             } = await fetchAPI(`/api/v1/cuochop/${id}`, {});
             setCuocHop(cuocHop);
-            console.log(cuocHop.thoiGian)
+            console.log(cuocHop)
             console.log(moment(cuocHop.thoiGian).utc().format("YYYY-MM-DDThh:mm"))
         } catch (err) {
             console.log(err)
@@ -68,16 +68,17 @@ function InfoCuocHop() {
                 onSubmit={async (values) => {
 
                     try {
-                        console.log(values, "abc")
+                        // console.log(values, "abc")
                         const { result } = await fetchAPI(`/api/v1/cuochop/${id}`, {
                             method: "PUT",
                             body: {
                                 ...values,
+                                hoKhaus: cuocHop.hoKhaus.map(e => e.id),
                                 thoiGian: moment(values.thoiGian + "Z").toISOString(),
                             },
                             token: localStorage.getItem("token"),
                         });
-                        console.log(moment(values.thoiGian + "Z"))
+                        console.log(result)
                         alert("Sửa thành công")
                     } catch (err) {
                         alert("Sửa thất bại")
@@ -102,7 +103,7 @@ function InfoCuocHop() {
 
                         <div class="d-flex justify-content-center">
                             <button class="btn btn-danger mr-1" onClick={() => navigate("../")}>Quay lại</button>
-                            {token != undefined && <button type="submit" class="btn btn-primary ">Sửa</button>}
+                            {token !== undefined && <button type="submit" class="btn btn-primary ">Sửa</button>}
 
                         </div>
                     </Form>
@@ -143,10 +144,10 @@ function InfoCuocHop() {
                             <div class="">{e.hoTenChuHo}</div>
                             <input type="checkbox" checked onChange={() => {
                                 setDanhSachThamGia(danhSachThamGia.map(value => {
-                                    if (value.id == e.id) value.invited = false;
+                                    if (value.id === e.id) value.invited = false;
                                     return value;
                                 }))
-                            }} disabled={token == undefined}></input>
+                            }} disabled={token === undefined}></input>
                         </div>)
                     }
                 </div>
@@ -157,16 +158,16 @@ function InfoCuocHop() {
                             <div class="">{e.hoTenChuHo}</div>
                             <input type="checkbox" onChange={() => {
                                 setDanhSachThamGia(danhSachThamGia.map(value => {
-                                    if (value.id == e.id) value.invited = true;
+                                    if (value.id === e.id) value.invited = true;
                                     return value;
                                 }))
-                            }} disabled={token == undefined}></input>
+                            }} disabled={token === undefined}></input>
                         </div>)
                     }
                 </div>
                 <hr></hr>
                 {
-                    token != undefined &&
+                    token !== undefined &&
                     <div class="d-flex justify-content-center">
                         <button class="btn btn-primary" onClick={async () => {
                             try {

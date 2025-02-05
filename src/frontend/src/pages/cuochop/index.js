@@ -32,7 +32,7 @@ function CuocHop() {
             <div class="d-flex justify-content-between">
                 <span class="ml-3 h3">Cuộc họp</span>
                 <div class="d-flex">
-                    {token != undefined && <button class="btn btn-primary mr-2" onClick={() => navigate("./them")}>Thêm cuộc họp mới</button>}
+                    {token !== undefined && <button class="btn btn-primary mr-2" onClick={() => navigate("./them")}>Thêm cuộc họp mới</button>}
                     <button class="btn btn-success" onClick={() => navigate("./thongke")}>Thống kê</button>
                 </div>
 
@@ -60,12 +60,12 @@ function CuocHop() {
                 <div class="col-1 flex-fill">{e.vangMat}</div>
                 <div class="col-1 flex-fill justify-content-center d-flex">
                     <i class="bi bi-pencil-fill mr-1" onClick={() => navigate(`./${e.id}`)}></i>
-                    {token != undefined && <i class="bi bi-file-earmark-excel-fill" onClick={() => {
+                    {token !== undefined && <i class="bi bi-file-earmark-excel-fill" onClick={() => {
                         fetchAPI(`/api/v1/cuochop/${e.id}`, {
                             method: "DELETE",
                             token: localStorage.getItem("token"),
                         });
-                        setCuocHops(cuocHops.filter(value => value.id != e.id))
+                        setCuocHops(cuocHops.filter(value => value.id !== e.id))
                     }}></i>}
                 </div>
             </div>)}
